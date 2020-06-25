@@ -8371,7 +8371,7 @@ var BLOCK_COLOR = 0x81e700;
 var HIGHLIGHTED_BLOCK_COLOR = 0x59853b;
 var DRAG_HIGHLIGHT_PERIOD = 500;
 var RED_METRICS_HOST = "api.creativeforagingtask.com";
-var RED_METRICS_GAME_VERSION = "0b0986f3-9119-4d90-82fb-20ee4842da69";
+var RED_METRICS_GAME_VERSION = "dff09f30-f1ca-406a-aff0-7eff70f2563d";
 
 var TRIGGERS = {
   "loadGame": 100, // When loads starts
@@ -8585,6 +8585,7 @@ var TrainingScene = function (_util$Entity2) {
       document.getElementById("done-training-1").addEventListener("click", this.onDonePart1.bind(this));
       document.getElementById("done-training-2").addEventListener("click", this.onDonePart2.bind(this));
       document.getElementById("done-training-4").addEventListener("click", this.onDonePart3.bind(this));
+      document.getElementById("after-saving").addEventListener("click", this.onSavingFirstTime.bind(this));
       document.getElementById("done-training-3").addEventListener("click", function (e) {
         _this3.done = true;
 
@@ -8645,13 +8646,19 @@ var TrainingScene = function (_util$Entity2) {
       document.getElementById("training-4").style.display = "block";
     }
   }, {
-    key: "onAddedShape",
-    value: function onAddedShape() {
+    key: "onSavingFirstTime",
+    value: function onSavingFirstTime() {
       document.getElementById("training-3").style.display = "none";
       document.getElementById("training-5").style.display = "block";
       this.blockScene.teardown();
       this.blockScene.setup();
       this.blockScene.off("addedShape", this.onAddedShape, this);
+    }
+  }, {
+    key: "onAddedShape",
+    value: function onAddedShape() {
+      document.getElementById("click-there-p").innerHTML = "";
+      document.getElementById("after-saving").style.display = "inline";
     }
   }]);
   return TrainingScene;
@@ -9096,8 +9103,7 @@ var BlockScene = function (_util$Entity3) {
       this.updateGalleryShape(galleryShape);
 
       document.getElementById("end-early-message").style.display = "none";
-      document.getElementById("add-shape").disabled = true;
-      this.changedShape = false;
+      document.getElementById("add-shape").disabled = true;this.changedShape = false;
 
       redmetricsConnection.postEvent({
         type: "added shape to gallery",
@@ -9112,6 +9118,7 @@ var BlockScene = function (_util$Entity3) {
   }, {
     key: "onAttemptDone",
     value: function onAttemptDone() {
+      console.log(allowEarlyExit);
       if (this.timesUp || !allowEarlyExit) {
         this.confirmDone();
       } else if (galleryShapes.length < 5) {
@@ -9469,8 +9476,10 @@ var metricsStartSceneEvents = {
 };
 
 var searchParams = new URLSearchParams(window.location.search);
-var allowEarlyExit = searchParams.get("allowEarlyExit") !== "false" && searchParams.get("allowEarlyExit") !== "0";
-var showResults = searchParams.get("showResults") !== "false" && searchParams.get("showResults") !== "0";
+// Change the default to not allow early exit.
+var allowEarlyExit = searchParams.get("allowEarlyExit") == "true" || searchParams.get("allowEarlyExit") == "1" ? true : false;
+
+var showResults = searchParams.get("showResults") == "true" || searchParams.get("showResults") == "1" ? true : false;
 
 var galleryShapes = [];
 var searchScore = 0.33;
